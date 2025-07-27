@@ -1,9 +1,12 @@
 import asyncio
+import nest_asyncio
 import os
 from telegram.ext import ApplicationBuilder, CommandHandler
 from config import Config
 from pota import POTA
 from dlbota import DLBOTA
+
+nest_asyncio.apply()  # Nest AsyncIO für Kompatibilität mit Render
 
 cfg = Config(None)  # Hier wird None übergeben, um die Konfiguration nicht zu laden
 # Wenn du eine Konfigurationsdatei laden möchtest, ersetze None durch den Pfad
