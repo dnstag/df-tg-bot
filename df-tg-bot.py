@@ -31,7 +31,6 @@ async def main():
     await app.run_webhook(
         listen="0.0.0.0",
         port=10000,  # Render erwartet standardmäßig Port 10000
-        webhook_path=WEBHOOK_PATH,
         webhook_url=f"https://{os.getenv('RENDER_EXTERNAL_HOSTNAME')}{WEBHOOK_PATH}",
         # allowed_updates=None  # optional, um alle Updates zu erlauben
     )
