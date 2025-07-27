@@ -14,7 +14,6 @@ cfg = Config(None)  # Hier wird None übergeben, um die Konfiguration nicht zu l
 
 help_texts = []
 
-WEBHOOK_PATH = "/webhook"
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 if not BOT_TOKEN:
     raise ValueError("BOT_TOKEN ist nicht gesetzt! Bitte als Umgebungsvariable setzen.")
@@ -34,7 +33,7 @@ async def main():
     await app.run_webhook(
         listen="0.0.0.0",
         port=10000,  # Render erwartet standardmäßig Port 10000
-        webhook_url=f"https://{os.getenv('RENDER_EXTERNAL_HOSTNAME')}{WEBHOOK_PATH}",
+        webhook_url=f"https://{os.getenv('RENDER_EXTERNAL_HOSTNAME')}",
         # allowed_updates=None  # optional, um alle Updates zu erlauben
     )
 
