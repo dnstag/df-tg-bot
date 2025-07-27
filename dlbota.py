@@ -6,8 +6,9 @@ from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 from telegram.constants import ParseMode
 
 class DLBOTA:
-    def __init__(self, app: ApplicationBuilder):
+    def __init__(self, app: ApplicationBuilder, add_help_text: callable):
          app.add_handler(CommandHandler("dlbota_profile", self.dlbota_profile_cmd))
+         add_help_text("dlbota_profile", "Zeigt das DLBOTA-Profil eines Benutzers an.")
 
 # /dlbota_profile
     async def dlbota_profile_cmd(self, update: Update, context: ContextTypes):

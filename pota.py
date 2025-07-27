@@ -4,13 +4,22 @@ import requests
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 from telegram.constants import ParseMode
+from config import Config
 import util
 
 class POTA:
-    def __init__(self, app: ApplicationBuilder):
+    def __init__(self, app: ApplicationBuilder, add_help_text: callable, config: Config):
         app.add_handler(CommandHandler("pota_profile", self.pota_profile_cmd))
         app.add_handler(CommandHandler("pota_park", self.pota_park_cmd))
         app.add_handler(CommandHandler("pota_parks_range", self.pota_parks_range_cmd))
+        add_help_text("pota_profile", "Zeigt das POTA-Profil eines Benutzers an.")
+        add_help_text("pota_park", "Zeigt Informationen zu einem POTA-Park an.")
+        add_help_text("pota_parks_range", "Zeigt alle POTA-Parks in einem bestimmten Bereich an.")
+
+        self.config = config
+
+    def get_config(self):
+        return self.config
 
 # /pota_profile
     async def pota_profile_cmd(self, update: Update, context: ContextTypes):
@@ -41,6 +50,8 @@ class POTA:
 
         for activity in data["recent_activity"]["activations"]:
             recent_activity.append(f"📅 {activity['date']} - {activity['reference']} {activity['park']} - {activity['total']} QSOs\n")
+            if len(recent_activity) >= 10:  # Begrenze auf die letzten 5 Aktivitäten
+                break
 
 
         await update.message.reply_text(
@@ -55,7 +66,7 @@ class POTA:
         f"🗺️ Parks: {hunter_parks}\n"
         f"📡 QSOs: {hunter_qsos}\n"
         f"\n"
-        f"<b>Letzte Aktivitäten:</b>\n"
+        f"<b>Letzte 10 Aktivitäten:</b>\n"
         f"{''.join(recent_activity)}", parse_mode=ParseMode.HTML)
 
 # /pota_park
@@ -93,6 +104,9 @@ class POTA:
         grid = context.args[0].upper()
         lat1, lon1 = util.maidenhead_locator_to_latlon(grid)
 
+        # Default auf 50 km setzen, wenn kein Bereich angegeben ist
+        range = int(context.args[1]) if len(context.args) > 1 else int(self.config.pota_default_range)
+
         url = f"https://api.pota.app/park/grid/{grid}"
         response = requests.get(url)
 
@@ -107,13 +121,28 @@ class POTA:
             return
 
         parks_info = []
-        for park in data["features"]:
-            dist = util.haversine_distance(lat1, lon1, park["geometry"]["coordinates"][1], park["geometry"]["coordinates"][0])
-            if dist <= 50:
-                parks_info.append(f"{park['properties']['reference']} - {park['properties']['name']} - {dist:.1f} km\n")
-            if len(parks_info) >= 25:  # Begrenze die Anzahl der Parks auf 25
-                break
+
+        # Unterschiedliche Ausgabeformate behandeln
+        if "features" in data:
+            for park in data["features"]:
+                dist = util.haversine_distance(lat1, lon1, park["geometry"]["coordinates"][1], park["geometry"]["coordinates"][0])
+                if dist <= range:
+                    parks_info.append(f"{park['properties']['reference']} - {park['properties']['name']} - {dist:.1f} km\n")
+                if len(parks_info) >= self.config.pota_max_parks:  # Begrenze die Anzahl der Parks auf 25
+                    break
+        else:
+            for park in data:
+                dist = util.haversine_distance(lat1, lon1, park["latitude"], park["longitude"])
+                if dist <= range:
+                    parks_info.append(f"{park['reference']} - {park['name']} - {dist:.1f} km\n")
+                if len(parks_info) >= self.config.pota_max_parks:  # Begrenze die Anzahl der Parks auf 25
+                    break
 
         sorted_distances = sorted(parks_info, key=lambda x: float(x.split('-')[-1].split()[0]))
-        parks_info = sorted_distances[:25]  # Nimm nur die 25 nächsten
-        await update.message.reply_text(f"Parks im Bereich von {grid} (50km):\n{''.join(parks_info)}", parse_mode=ParseMode.HTML)
+        parks_info = sorted_distances
+
+        if len(parks_info) == 0:
+            await update.message.reply_text("Keine Parks im angegebenen Bereich gefunden.")
+            return
+        
+        await update.message.reply_text(f"Parks im Bereich von {grid} ({range}km):\n{''.join(parks_info)}", parse_mode=ParseMode.HTML)
