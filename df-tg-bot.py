@@ -5,7 +5,10 @@ from config import Config
 from pota import POTA
 from dlbota import DLBOTA
 
-# cfg = Config("config.json")
+cfg = Config(None)  # Hier wird None übergeben, um die Konfiguration nicht zu laden
+# Wenn du eine Konfigurationsdatei laden möchtest, ersetze None durch den Pfad
+# z.B. Config("config.json")
+
 help_texts = []
 
 WEBHOOK_PATH = "/webhook"

@@ -3,6 +3,9 @@ import os
 
 class Config:
     def __init__(self, filepath):
+        if filepath is None:
+            return
+        
         with open(filepath, 'r', encoding='utf-8') as f:
             try:
                 self._data = json.load(f)
