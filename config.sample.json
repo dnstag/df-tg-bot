@@ -1,6 +1,6 @@
 {
-	"token": "YOUR_TOKEN_HERE",
 	"admin_id": 123456789,
 	"pota_max_parks": 25,
-	"pota_default_range": 50
+	"pota_default_range": 50,
+	"webhook_url": "https://your-webhook-url.com"
 }
