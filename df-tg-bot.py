@@ -20,6 +20,8 @@ API_URL = os.getenv("API_URL")
 if not BOT_TOKEN or not API_URL:
     raise ValueError("BOT_TOKEN oder API_URL ist nicht gesetzt! Bitte als Umgebungsvariable setzen.")
 
+print(f"Bot Token: {BOT_TOKEN}")
+print(f"API URL: {API_URL}")
 
 def add_help_text(command, description):
     help_texts.append(f"/{command} - {description}")
