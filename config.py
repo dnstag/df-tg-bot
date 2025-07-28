@@ -4,6 +4,7 @@ import os
 class Config:
     def __init__(self, filepath):
         if filepath is None:
+            self._data = {}
             return
         
         with open(filepath, 'r', encoding='utf-8') as f:
