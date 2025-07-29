@@ -22,12 +22,14 @@
 # SOFTWARE.
 
 import argparse
+import logging
 from telegram.ext import ApplicationBuilder, CommandHandler
 from config import Config
 from pota import POTA
 from dlbota import DLBOTA
 
 help_texts = []
+logger: logging.Logger
 VERSION = "0.0.1-prealpha"
 
 def parse_argv():
@@ -65,23 +67,40 @@ def add_help_text(command, description):
     help_texts.append(f"/{command} - {description}")
 
 def start(config_path, token, development):
+    logger.info("Starte Draussenfunker Telegram Bot, Version %s", VERSION)
     cfg = Config(config_path)
     app = ApplicationBuilder().token(token).build()
+    logger.debug("Konfiguration geladen: %s", cfg)
+    logger.debug("Bot Token: %s", token)
     pota = POTA(app, add_help_text, cfg)
     dlbota = DLBOTA(app, add_help_text)
     app.add_handler(CommandHandler("help", lambda update, context: update.message.reply_text("\n".join(help_texts))))
     app.add_handler(CommandHandler("start", lambda update, context: update.message.reply_text("Willkommen! Benutze /help für eine Liste der Befehle.")))
 
     if development:
-        print("Starte Bot im Entwicklungsmodus (Polling)...")
+        logger.info("Starte Bot im Entwicklungsmodus (Polling)...")
         app.run_polling()
     else:
-        print("Starte Bot im Produktionsmodus (Webhook)...")
+        logger.info("Starte Bot im Produktionsmodus (Webhook)...")
+        logger.debug("Webhook URL: %s", cfg.webhook_url)
         app.run_webhook(
             listen="0.0.0.0",
             port=10000,  # Render erwartet standardmäßig Port 10000
             webhook_url=cfg.webhook_url)
 
 if __name__ == "__main__":
+    logger = logging.getLogger(__name__)
     args = parse_argv()
+
+    if args.development:
+        logging.basicConfig(
+        format='%(asctime)s (%(levelname)s): %(name)s - %(message)s',
+        level=logging.DEBUG
+    )
+    else:
+        logging.basicConfig(
+        format='%(asctime)s (%(levelname)s): %(name)s - %(message)s',
+        level=logging.INFO
+    )
+    
     start(args.config, args.token, args.development)

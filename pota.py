@@ -24,17 +24,24 @@
 import json
 import os
 import requests
+import logging
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 from telegram.constants import ParseMode
 from config import Config
 import util
 
+logger = logging.getLogger(__name__)
+
 class POTA:
     def __init__(self, app: ApplicationBuilder, add_help_text: callable, config: Config):
+        logger.debug("Initialisiere POTA Modul")
         app.add_handler(CommandHandler("pota_profile", self.pota_profile_cmd))
+        logger.debug("Registriere /pota_profile Befehl")
         app.add_handler(CommandHandler("pota_park", self.pota_park_cmd))
+        logger.debug("Registriere /pota_park Befehl") 
         app.add_handler(CommandHandler("pota_parks_range", self.pota_parks_range_cmd))
+        logger.debug("Registriere /pota_parks_range Befehl")
         add_help_text("pota_profile", "Zeigt das POTA-Profil eines Benutzers an.")
         add_help_text("pota_park", "Zeigt Informationen zu einem POTA-Park an.")
         add_help_text("pota_parks_range", "Zeigt alle POTA-Parks in einem bestimmten Bereich an.")
@@ -49,7 +56,7 @@ class POTA:
         if not context.args:
             await update.message.reply_text("Bitte gib dein Rufzeichen an, z.B. /pota_profile DL1XYZ")
             return
-
+        logger.debug("POTA Profil Befehl aufgerufen mit Rufzeichen: %s, von Benutzer: %s", context.args[0], update.message.from_user.username)
         callsign = context.args[0]
 
         url = f"https://api.pota.app/profile/{callsign.upper()}"
@@ -98,6 +105,8 @@ class POTA:
             await update.message.reply_text("Bitte gib die Parkreferenz an, z.B. /pota_park DE-0693")
             return
 
+        logger.debug("POTA Park Befehl aufgerufen mit Parkreferenz: %s, von Benutzer: %s", context.args[0], update.message.from_user.username)
+
         park_reference = context.args[0].upper()
 
         url = f"https://api.pota.app/park/{park_reference}"
@@ -123,6 +132,8 @@ class POTA:
         if not context.args:
             await update.message.reply_text("Bitte gib dein 6-stelliges Grid an, z.B. /pota_parks_range JN39mf")
             return
+
+        logger.debug("POTA Parks Range Befehl aufgerufen mit Grid: %s, von Benutzer: %s", context.args[0], update.message.from_user.username)
 
         grid = context.args[0].upper()
         lat1, lon1 = util.maidenhead_locator_to_latlon(grid)
