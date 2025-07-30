@@ -1,5 +1,5 @@
-#
-# park.py - This file is part of DF-TG-Bot
+# 
+# test/test_api.py - This file is part of DF-TG-Bot
 #
 # Copyright (c) 2025 Yannick Seibert. All rights reserved.
 #
@@ -20,37 +20,29 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-from dataclasses import dataclass
-from programs.reference import Reference
 
-@dataclass
-class Park(Reference):
-    """
-    Represents a park with a name, description, and coordinates.
-    """
-    active: bool
-    park_type: str
+import unittest
+from unittest.mock import patch, MagicMock
+from programs.pota.api import POTAAPI
 
-    def __str__(self):
-        return super().__str__() + f" park_type: {self.park_type} - {'Active' if self.active else 'Inactive'}"
+class TestPOTAAPI(unittest.TestCase):
 
-    def to_dict(self):
-        """
-        Converts the reference to a dictionary format.
-        """
-        return super().to_dict() | {
-            "active": self.active,
-            "park_type": self.park_type
-        }
-    
-if __name__ == "__main__":
-    # Example usage
-    park = Park(
-        name="DE-0693",
-        description="Biosphäre Bliesgau",
-        coordinates=(48.137154, 7.576124),
-        active=True,
-        park_type="Biosphere Reserve"
-    )
-    print(park)
-    print(park.to_dict())
+    @patch('programs.pota.api.requests.get')
+    def test_get_park(self):
+        # Simulierter Rückgabewert für die API
+        fake_park = {"reference": "DL-1234", "name": "Black Forest"}
+
+        # Mock-Objekt der API
+        mock_api = MagicMock()
+        mock_api.get_park.return_value = fake_park
+
+        api = POTAAPI()
+        result = api.get_park("DE-0693")
+
+        self.assertEqual(result.name, "DE-0693")
+        self.assertEqual(result.description, "Biosphäre Bluesgau")
+        self.assertEqual(result.active, True)
+        mock_api.get_park.assert_called_once_with("DE-0693")
+
+if __name__ == '__main__':
+    unittest.main()

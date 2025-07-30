@@ -29,6 +29,7 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 from telegram.constants import ParseMode
 from config import Config
+from programs.pota import POTAAPI, Park
 import util
 
 logger = logging.getLogger(__name__)
@@ -109,23 +110,21 @@ class POTA:
 
         park_reference = context.args[0].upper()
 
-        url = f"https://api.pota.app/park/{park_reference}"
-        response = requests.get(url)
+        api = POTAAPI()
+        park = api.get_park(park_reference)
 
-        if response.status_code != 200:
-            await update.message.reply_text(f"Fehler beim Abrufen des POTA-Parks ({response.status_code})")
+        if not park:
+            await update.message.reply_text(f"Fehler beim Abrufen des POTA-Parks ({park_reference})")
             return
 
-        data = response.json()
-
         await update.message.reply_text(
-            f"Park: <b>{data['reference']} - {data['name']}</b>\n"
-            f"Aktiv: {'Ja' if data['active'] else 'Nein'}\n"
-            f"Grid: {data['grid6']}\n"
-            f"Koordinaten: {data['latitude']}, {data['longitude']}\n"
-            f"Region: {data['locationDesc']} - {data['locationName']}\n"
-            f"Park-Typ: {data['parktypeDesc']}\n"
-            f"Erstaktivierung: {data['firstActivator']} am {data['firstActivationDate']}", parse_mode=ParseMode.HTML)
+            f"Park: <b>{park.name} - {park.description}</b>\n"
+            f"Aktiv: {'Ja' if park.active else 'Nein'}\n"
+            f"Grid: {park.grid6}\n"
+            f"Koordinaten: {park.coordinates[0]}, {park.coordinates[1]}\n"
+            # f"Region: {park.locationDesc} - {park.locationName}\n"
+            f"Park-Typ: {park.park_type}\n"
+            f"Erstaktivierung: {park.first_activator} am {park.first_activation_date}", parse_mode=ParseMode.HTML)
 
 # /pota_parks_range
     async def pota_parks_range_cmd(self, update: Update, context: ContextTypes):

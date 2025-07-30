@@ -42,10 +42,19 @@ class POTAAPI:
         if response.status_code != 200:
             err = f"Error fetching park data: {response.status_code} - {response.text}"
             logger.error(err)
-            raise Exception(err)
+            return None
         data = response.json()
 
-        return Park(data['reference'], data['name'], (data['latitude'], data['longitude']), bool(data['active']))
+        return Park(data['reference'],
+                    data['name'],
+                    (data['latitude'],
+                    data['longitude']),
+                    data['grid4'],
+                    data['grid6'],
+                    data['firstActivator'],
+                    data['firstActivationDate'],
+                    bool(data['active']),
+                    data['parktypeDesc'],)
 
     def get_profile(self, callsign: str) -> POTAProfile:
         """Fetch the profile of a specific callsign."""

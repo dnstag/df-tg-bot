@@ -31,9 +31,15 @@ class Reference:
     name: str
     description: str
     coordinates: tuple[float, float]
+    grid4: str
+    grid6: str
+    first_activator: str
+    first_activation_date: str
 
     def __str__(self):
-        return f"{self.name}: {self.description} ({self.coordinates[0]}, {self.coordinates[1]})"
+        return f"{self.name}: {self.description} ({self.coordinates[0]}, " \
+               f"{self.coordinates[1]}) grid4: {self.grid4}, grid6: {self.grid6}, " \
+               f"first activator: {self.first_activator}, first activation date: {self.first_activation_date}"
 
     def to_dict(self):
         """
@@ -42,7 +48,11 @@ class Reference:
         return {
             "name": self.name,
             "description": self.description,
-            "coordinates": self.coordinates
+            "coordinates": self.coordinates,
+            "grid4": self.grid4,
+            "grid6": self.grid6,
+            "first_activator": self.first_activator,
+            "first_activation_date": self.first_activation_date
         }
     
 if __name__ == "__main__":
@@ -50,7 +60,11 @@ if __name__ == "__main__":
     ref = Reference(
         name="DE-0693",
         description="Biosphäre Bliesgau",
-        coordinates=(48.137154, 7.576124)
+        coordinates=(48.137154, 7.576124),
+        grid4="JN39",
+        grid6="JN39nl",
+        first_activator="DK9JC",
+        first_activation_date="2015-03-08"
     )
     print(ref)
     print(ref.to_dict())
