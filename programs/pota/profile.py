@@ -22,6 +22,7 @@
 # SOFTWARE.
 
 from programs.profile import Profile
+from programs.pota.park import Park
 from dataclasses import dataclass
 
 @dataclass
@@ -62,5 +63,5 @@ class POTAProfile(Profile):
             "activator_attempted_activations": self.activator_attempted_activations,
             "activator_attempted_qsos": self.activator_attempted_qsos,
             "hunter_parks": self.hunter_parks,
-            "hunter_qsos": self.hunter_qsos
+            "hunter_qsos": self.hunter_qsos,
         }

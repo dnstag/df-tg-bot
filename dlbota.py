@@ -25,16 +25,16 @@ import json
 import os
 import requests
 from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
+from telegram.ext import Application, CommandHandler, ContextTypes, CallbackContext
 from telegram.constants import ParseMode
 
 class DLBOTA:
-    def __init__(self, app: ApplicationBuilder, add_help_text: callable):
+    def __init__(self, app: Application, add_help_text: callable):
          app.add_handler(CommandHandler("dlbota_profile", self.dlbota_profile_cmd))
          add_help_text("dlbota_profile", "Zeigt das DLBOTA-Profil eines Benutzers an.")
 
 # /dlbota_profile
-    async def dlbota_profile_cmd(self, update: Update, context: ContextTypes):
+    async def dlbota_profile_cmd(self, update: Update, context: CallbackContext):
         if not context.args:
             await update.message.reply_text("Bitte gib dein Rufzeichen an, z.B. /dlbota_profile DL1XYZ")
             return

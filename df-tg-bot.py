@@ -25,7 +25,7 @@ import argparse
 import logging
 from telegram.ext import ApplicationBuilder, CommandHandler
 from config import Config
-from pota import POTA
+from programs.pota.pota import POTA
 from dlbota import DLBOTA
 
 help_texts = []
@@ -72,7 +72,7 @@ def start(config_path, token, development):
     app = ApplicationBuilder().token(token).build()
     logger.debug("Konfiguration geladen: %s", cfg)
     logger.debug("Bot Token: %s", token)
-    pota = POTA(app, add_help_text, cfg)
+    pota = POTA(app, cfg)
     dlbota = DLBOTA(app, add_help_text)
     app.add_handler(CommandHandler("help", lambda update, context: update.message.reply_text("\n".join(help_texts))))
     app.add_handler(CommandHandler("start", lambda update, context: update.message.reply_text("Willkommen! Benutze /help für eine Liste der Befehle.")))

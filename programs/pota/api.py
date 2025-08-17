@@ -71,7 +71,7 @@ class POTAAPI:
     # fetching references first
         references: list[Park] = []
         for activation in data['recent_activity']['activations']:
-            references.append(Park(activation['reference'], activation['park'], (0.0, 0.0), True))
+            references.append(Park(activation['reference'], activation['park'], (0.0, 0.0), "", "", "", "", True, ""))
 
         return POTAProfile(
             data['callsign'],
